@@ -62,7 +62,8 @@ function openPrintView(planId, popup) {
 }
 
 'use strict';
-const REF=window.BPM_REFERENCE, CFG=window.BPM_CONFIG;
+const REF=window.BPM_REFERENCE;
+let CFG;
 const ROLES={teacher:'ครูผู้สอน',subject_head:'หัวหน้ากลุ่มสาระ',academic_head:'หัวหน้าวิชาการ',director:'ผู้อำนวยการ',admin:'ผู้ดูแลระบบ'};
 const STATUS={pending_subject:'รอหัวหน้ากลุ่มสาระตรวจ',pending_academic:'รอหัวหน้าวิชาการตรวจ',pending_director:'รอผู้อำนวยการอนุมัติ',approved:'อนุมัติแล้ว',rejected:'ไม่อนุมัติ',returned:'ส่งคืนให้แก้ไข'};
 const MONTHS=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
@@ -240,7 +241,7 @@ root.addEventListener('click',async e=>{const nav=e.target.closest('[data-nav]')
 });
 document.addEventListener('error',e=>{if(e.target.matches?.('img[data-image-fallback]')){const span=document.createElement('span');span.className='hint';span.textContent='ไม่สามารถโหลดภาพได้';e.target.replaceWith(span);}},true);
 function clearSession(){me=null;current=null;filters={};page=0;epoch++;sessionEpoch++;queryAbort?.abort();pendingCommands.clear();charts.forEach(c=>c.destroy());charts=[];ARCHIVE_CACHE={};AT_CACHE={};ARCHIVE_SIGNATURES={};AT_SIGNATURES={};}
-async function init(){if(!CFG?.url||!CFG?.key||!window.supabase){root.innerHTML=`<div class="login-screen"><div class="login-card"><h1>พร้อมตั้งค่าระบบส่งแผน</h1><p>เปิดไฟล์ <b>config.js</b> และใส่ Project URL กับ Publishable key ของ Supabase แล้วเปิดเว็บใหม่</p><p class="notice">ต้องติดตั้ง SQL และสร้างบัญชีผู้ดูแลตาม README_TH.md ก่อนเข้าสู่ระบบ</p><small>หากตั้งค่าแล้วแต่ยังเห็นหน้านี้ ให้ตรวจว่าโหลด Supabase SDK ได้</small></div></div>`;return;}
+async function init(){CFG=window.BPM_CONFIG;if(!CFG?.url||!CFG?.key||!window.supabase){root.innerHTML=`<div class="login-screen"><div class="login-card"><h1>พร้อมตั้งค่าระบบส่งแผน</h1><p>เปิดไฟล์ <b>config.js</b> และใส่ Project URL กับ Publishable key ของ Supabase แล้วเปิดเว็บใหม่</p><p class="notice">ต้องติดตั้ง SQL และสร้างบัญชีผู้ดูแลตาม README_TH.md ก่อนเข้าสู่ระบบ</p><small>หากตั้งค่าแล้วแต่ยังเห็นหน้านี้ ให้ตรวจว่าโหลด Supabase SDK ได้</small></div></div>`;return;}
  db=window.supabase.createClient(CFG.url,CFG.key);root.innerHTML=loading('กำลังเริ่มระบบ…');try{settings=await checked(db.from('bpm_settings').select('*').single());await enterSession();db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){clearSession();loginScreen();}});}catch(e){loginScreen('เริ่มระบบไม่สำเร็จ: '+errorMessage(e));}}
 document.addEventListener("DOMContentLoaded",init);
 
